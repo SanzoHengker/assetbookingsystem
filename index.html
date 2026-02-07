@@ -178,28 +178,11 @@ textarea:disabled{background:#2c2c2c;color:#888}
 
 <script>
 // DATA
-let bookings = [];
-let inboxAdmin = [];
-let history = [];
-let adminLoggedIn = false;
-let accessOpen = true;
-
-// Load data dari data.json
-async function loadData() {
-    try {
-        const res = await fetch('data.json');
-        const data = await res.json();
-        bookings = data.bookings || [];
-        inboxAdmin = data.inboxAdmin || [];
-        history = data.history || [];
-        updateTable();
-    } catch (err) {
-        console.error("Gagal load data.json:", err);
-    }
-}
-
-// Panggil loadData saat page siap
-window.addEventListener('DOMContentLoaded', loadData);
+let bookings=[]; // aktif
+let inboxAdmin=[]; // incomplete
+let history=[]; // pemulangan history
+let adminLoggedIn=false;
+let accessOpen=true;
 
 // STOCK UNTUK AKSESORI
 let accessoryStock = { 'HDMI':3,'MOUSE':3,'CHARGER LAPTOP':3,'POWER PLUG LCD':3 };
