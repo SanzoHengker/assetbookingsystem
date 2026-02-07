@@ -1,0 +1,26 @@
+name: Update Booking Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      bookings: { type: string }
+      inboxAdmin: { type: string }
+      history: { type: string }
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update data.json
+        run: |
+          echo "${{ github.event.inputs.bookings }}" > bookings.json
+          echo "${{ github.event.inputs.inboxAdmin }}" > inboxAdmin.json
+          echo "${{ github.event.inputs.history }}" > history.json
+          jq -n --slurpfile b bookings.json --slurpfile i inboxAdmin.json --slurpfile h history.json \
+            '{bookings:$b[0],inboxAdmin:$i[0],history:$h[0]}' > data.json
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data.json
+          git commit -m "Update data.json"
+          git push
