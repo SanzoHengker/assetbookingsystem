@@ -177,6 +177,11 @@ textarea:disabled{background:#2c2c2c;color:#888}
 </div>
 
 <script>
+// JSONBin.io CONFIG
+const BIN_ID = '6987493ad0ea881f40a800e4'; // Ganti dengan Bin ID awak
+const API_KEY = 'Y$2a$10$ImEu/R4Rka8zGlpe4ZBMiey7b6390o8nlQBdB6Wkc8B4N3plpUNNa'; // Ganti dengan API key awak
+const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
 // DATA
 let bookings=[]; // aktif
 let inboxAdmin=[]; // incomplete
@@ -215,18 +220,12 @@ function updateTable(){
 function updateDropdowns(){
     const laptopsBooked=bookings.filter(b=>b.laptop!=='NONE').map(b=>b.laptop);
     const lcdBooked=bookings.filter(b=>b.lcd!=='NONE').map(b=>b.lcd);
-
-    // reset stock
     accessoryStock = { 'HDMI':3,'MOUSE':3,'CHARGER LAPTOP':3,'POWER PLUG LCD':3 };
     bookings.forEach(b=>{b.accessory.forEach(a=>{if(a!=='NONE') accessoryStock[a]--;}); });
-
-    // laptop & lcd
     const laptopOptions=document.getElementById('laptop').options;
     for(let i=0;i<laptopOptions.length;i++){ laptopOptions[i].disabled=laptopsBooked.includes(laptopOptions[i].value); }
     const lcdOptions=document.getElementById('lcd').options;
     for(let i=0;i<lcdOptions.length;i++){ lcdOptions[i].disabled=lcdBooked.includes(lcdOptions[i].value); }
-
-    // accessory checkboxes
     const accessoryCheckboxes=document.querySelectorAll('#accessoryOptions input[type="checkbox"]');
     let selected = Array.from(accessoryCheckboxes).filter(c=>c.checked && c.value!=='NONE');
     let noneCheckbox = Array.from(accessoryCheckboxes).find(c=>c.value==='NONE');
@@ -235,6 +234,7 @@ function updateDropdowns(){
     });
     noneCheckbox.disabled = selected.length>0;
 }
+
 const accessoryCheckboxes = document.querySelectorAll('#accessoryOptions input[type="checkbox"]');
 accessoryCheckboxes.forEach(cb=>cb.addEventListener('change',function(){
     let selected = Array.from(accessoryCheckboxes).filter(c=>c.checked && c.value!=='NONE');
@@ -245,8 +245,30 @@ accessoryCheckboxes.forEach(cb=>cb.addEventListener('change',function(){
     else{ accessoryCheckboxes.forEach(c=>{if(c.value!=='NONE') c.disabled=false;}); }
 }));
 
+// JSONBin FUNCTIONS
+async function loadDataFromBin(){
+    try{
+        const res = await fetch(BIN_URL + '/latest', { headers:{ 'X-Master-Key':API_KEY } });
+        const data = await res.json();
+        bookings = data.record.bookings || [];
+        inboxAdmin = data.record.inboxAdmin || [];
+        history = data.record.history || [];
+        updateTable();
+    }catch(err){ console.log('Error loading data from JSONBin',err); }
+}
+
+async function saveDataToBin(){
+    try{
+        await fetch(BIN_URL,{
+            method:'PUT',
+            headers:{ 'X-Master-Key':API_KEY, 'Content-Type':'application/json' },
+            body: JSON.stringify({ bookings, inboxAdmin, history })
+        });
+    }catch(err){ console.log('Error saving data to JSONBin',err); }
+}
+
 // PEMINJAMAN
-document.getElementById('bookingForm').addEventListener('submit',function(e){
+document.getElementById('bookingForm').addEventListener('submit',async function(e){
     e.preventDefault();
     if(!accessOpen){ alert('Akses Peminjaman ditutup!'); return; }
     const name = document.getElementById('name').value.trim();
@@ -262,10 +284,11 @@ document.getElementById('bookingForm').addEventListener('submit',function(e){
     this.reset();
     accessoryCheckboxes.forEach(c=>c.disabled=false);
     updateTable();
+    await saveDataToBin(); // JSONBin
 });
 
 // PEMULANGAN
-document.getElementById('returnForm').addEventListener('submit',function(e){
+document.getElementById('returnForm').addEventListener('submit',async function(e){
     e.preventDefault();
     if(!accessOpen){ alert('Akses Pemulangan ditutup!'); return; }
     const ref = document.getElementById('refCode').value.trim();
@@ -283,6 +306,7 @@ document.getElementById('returnForm').addEventListener('submit',function(e){
     bookings.splice(index,1);
     this.reset();
     updateTable();
+    await saveDataToBin(); // JSONBin
 });
 
 // STATUS KETERANGAN WAJIB
@@ -295,7 +319,7 @@ function checkReference(){
     const ref=document.getElementById('adminRefCheck').value.trim();
     let rec=bookings.find(b=>b.ref===ref);
     let hist=history.find(h=>h.ref===ref && (Date.now()-h.timestamp<=60*24*60*60*1000));
-    if(rec){document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${rec.ref}<br><b>Nama:</b> ${rec.name}<br><b>Tarikh:</b> ${rec.date}<br><b>Tujuan:</b> ${rec.purpose}<br><b>Laptop:</b> ${rec.laptop}<br><b>LCD:</b> ${rec.lcd}<br><b>Aksesori:</b> ${rec.accessory.join(', ')}<br><b>Status:</b> Sedang Dipinjam`;}
+    if(rec){document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${rec.ref}<br><b>Nama:</b> ${rec.name}<br><b>Tarikh:</b> ${rec.date}<br><b>Tujuan:</b> ${rec.purpose}<br><b>Laptop:</b> ${rec.laptop}<br><b>LCD:</b> ${rec.lcd}<br><b>Aksesori:</b> ${rec.accessory.join(', ') }<br><b>Status:</b> Sedang Dipinjam`;}
     else if(hist){document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${hist.ref}<br><b>Nama:</b> ${hist.name}<br><b>Tarikh Peminjaman:</b> ${hist.date}<br><b>Tujuan:</b> ${hist.purpose}<br><b>Laptop:</b> ${hist.laptop}<br><b>LCD:</b> ${hist.lcd}<br><b>Aksesori:</b> ${hist.accessory.join(', ')}<br><b>Status:</b> ${hist.status}<br><b>Keterangan:</b> ${hist.notes}`;}
     else{document.getElementById('refDetails').innerText="Reference tidak ditemui atau lebih 60 hari.";}
 }
@@ -306,31 +330,9 @@ function showHistory(){
     document.getElementById('historyContent').innerHTML=recent.length===0?'<p>Tidak ada rekod.</p>':recent.map(h=>`<p>${h.ref} - Status: ${h.status}</p>`).join('');
     document.getElementById('adminHistoryModal').style.display='flex';
 }
-</script>
-</body>
-<body>
-  <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyCvTG5I4FXYJ1JAeTintjziCAc7mEFOykw",
-    authDomain: "bookingsystempis.firebaseapp.com",
-    projectId: "bookingsystempis",
-    storageBucket: "bookingsystempis.firebasestorage.app",
-    messagingSenderId: "42607164051",
-    appId: "1:42607164051:web:ab389bb7406e6ade77eb66",
-    measurementId: "G-ZEB6PQEWP3"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+// LOAD DATA BILA PAGE DIBUKA
+loadDataFromBin(); // JSONBin
 </script>
 </body>
 </html>
