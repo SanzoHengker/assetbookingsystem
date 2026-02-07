@@ -43,9 +43,9 @@ textarea:disabled{background:#2c2c2c;color:#888}
 <body>
 
 <h1>Asset Booking System
-<button id="loginBtn">Login Admin</button>
-<button id="inboxBtn">Admin Inbox</button>
-<button id="adminPageBtn">Admin Panel</button>
+<button id="loginBtn" onclick="openLoginModal()">Login Admin</button>
+<button id="inboxBtn" onclick="openInboxModal()">Admin Inbox</button>
+<button id="adminPageBtn" onclick="showPage('adminPage')">Admin Panel</button>
 </h1>
 
 <!-- Login Modal -->
@@ -54,8 +54,8 @@ textarea:disabled{background:#2c2c2c;color:#888}
 <h2>Login Admin</h2>
 <input type="text" id="adminUsername" placeholder="Username">
 <input type="password" id="adminPassword" placeholder="Password">
-<button id="adminLoginBtn">Login</button>
-<button id="cancelLoginBtn">Cancel</button>
+<button onclick="adminLogin()">Login</button>
+<button onclick="closeLoginModal()">Cancel</button>
 </div>
 </div>
 
@@ -64,7 +64,7 @@ textarea:disabled{background:#2c2c2c;color:#888}
 <div class="modal-content">
 <h2>Inbox Admin - Barang Tidak Lengkap</h2>
 <div id="inboxContent"></div>
-<button id="closeInboxBtn">Close</button>
+<button onclick="closeInboxModal()">Close</button>
 </div>
 </div>
 
@@ -73,15 +73,15 @@ textarea:disabled{background:#2c2c2c;color:#888}
 <div class="modal-content">
 <h2>Jadual Pemulangan (60 Hari)</h2>
 <div id="historyContent"></div>
-<button id="closeHistoryBtn">Close</button>
+<button onclick="closeHistoryModal()">Close</button>
 </div>
 </div>
 
 <!-- Home Page -->
 <div class="container" id="homePage">
 <div class="home-buttons">
-<button id="gotoBookingBtn">Menu Peminjaman</button>
-<button id="gotoReturnBtn">Menu Pemulangan</button>
+<button onclick="showPage('bookingPage')">Menu Peminjaman</button>
+<button onclick="showPage('returnPage')">Menu Pemulangan</button>
 </div>
 </div>
 
@@ -119,7 +119,7 @@ textarea:disabled{background:#2c2c2c;color:#888}
 <label><input type="checkbox" value="NONE"> NONE</label>
 </div>
 <button type="submit">Submit Peminjaman</button>
-<button type="button" id="backHomeFromBooking">Kembali ke Home</button>
+<button type="button" onclick="showPage('homePage')">Kembali ke Home</button>
 </form>
 </div>
 <div class="section booking-list">
@@ -131,15 +131,61 @@ textarea:disabled{background:#2c2c2c;color:#888}
 </div>
 </div>
 
-<!-- RETURN PAGE & ADMIN PAGE sama idea, boleh ditambah dengan ID unik untuk listener -->
+<!-- Return Page -->
+<div class="container" id="returnPage" style="display:none;">
+<div class="section">
+<h2>Form Pemulangan</h2>
+<form id="returnForm">
+<label>Reference Code:</label>
+<input type="text" id="refCode" required>
+<label>Tarikh Pulang:</label>
+<input type="date" id="returnDate" required>
+<label>Status Barang:</label>
+<select id="status" required>
+<option value="complete">Lengkap</option>
+<option value="incomplete">Tidak Lengkap</option>
+</select>
+<label>Keterangan (jika tidak lengkap):</label>
+<textarea id="notes" rows="2" disabled></textarea>
+<button type="submit">Submit Pemulangan</button>
+<button type="button" onclick="showPage('homePage')">Kembali ke Home</button>
+</form>
+</div>
+<div class="section booking-list">
+<h2>Senarai Peminjaman Aktif</h2>
+<table id="bookingTable2">
+<thead><tr><th>Reference</th><th>Nama</th><th>Tarikh</th><th>Tujuan</th><th>Laptop</th><th>LCD</th><th>Aksesori</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+
+<!-- Admin Panel -->
+<div class="container" id="adminPage" style="display:none;">
+<div class="section">
+<h2>Admin Panel</h2>
+<label>Check Reference Code:</label>
+<input type="text" id="adminRefCheck" placeholder="Masukkan Reference Code">
+<button onclick="checkReference()">Cari Reference</button>
+<div id="refDetails" style="margin-top:10px;color:#ffd700;"></div>
+<hr style="margin:20px 0;border-color:#ffd700">
+<button id="toggleAccessBtn" onclick="toggleAccess()">Tutup/Pembukaan Akses Peminjaman & Pemulangan</button>
+<p id="accessStatus" style="margin-top:10px;color:#ffd700;">Akses Sekarang: Dibuka</p>
+<button onclick="showHistory()">Lihat Jadual Status Pemulangan (60 Hari)</button>
+<button onclick="showPage('homePage')">Kembali ke Home</button>
+</div>
+</div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
-import { getFirestore, collection, doc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Firebase config
-const firebaseConfig = {
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
     apiKey: "AIzaSyCvTG5I4FXYJ1JAeTintjziCAc7mEFOykw",
     authDomain: "bookingsystempis.firebaseapp.com",
     projectId: "bookingsystempis",
@@ -147,69 +193,141 @@ const firebaseConfig = {
     messagingSenderId: "42607164051",
     appId: "1:42607164051:web:ab389bb7406e6ade77eb66",
     measurementId: "G-ZEB6PQEWP3"
-};
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
 
 // DATA
-let bookings=[], history=[], inboxAdmin=[];
-let adminLoggedIn=false, accessOpen=true;
+let bookings=[]; // aktif
+let inboxAdmin=[]; // incomplete
+let history=[]; // pemulangan history
+let adminLoggedIn=false;
+let accessOpen=true;
 
-// --- FIRESTORE COLLECTIONS ---
-const bookingsCol = collection(db,'bookings');
-const historyCol = collection(db,'history');
-const inboxCol = collection(db,'inboxAdmin');
+// STOCK UNTUK AKSESORI
+let accessoryStock = { 'HDMI':3,'MOUSE':3,'CHARGER LAPTOP':3,'POWER PLUG LCD':3 };
 
-// --- HELPER FUNCTIONS ---
+// FUNCTIONS
 function generateRef(){return 'REF'+Date.now()+'-'+Math.floor(Math.random()*10000);}
-function showPage(id){['homePage','bookingPage','returnPage','adminPage'].forEach(p=>document.getElementById(p)?.style.display='none');updateTable();document.getElementById(id).style.display='block'}
+function openLoginModal(){document.getElementById('loginModal').style.display='flex'}
+function closeLoginModal(){document.getElementById('loginModal').style.display='none'}
+function openInboxModal(){const c=document.getElementById('inboxContent');c.innerHTML=inboxAdmin.length===0?'<p>Tidak ada laporan.</p>':inboxAdmin.map(i=>`<p><b>${i.ref}</b> - ${i.name} (${i.date}) : ${i.notes}</p>`).join('');document.getElementById('adminInboxModal').style.display='flex'}
+function closeInboxModal(){document.getElementById('adminInboxModal').style.display='none'}
+function closeHistoryModal(){document.getElementById('adminHistoryModal').style.display='none'}
+function adminLogin(){const u=document.getElementById('adminUsername').value.trim();const p=document.getElementById('adminPassword').value.trim();if(u==='Admin JPA'&&p==='adminjpapis01'){adminLoggedIn=true;closeLoginModal();document.getElementById('loginBtn').style.display='none';document.getElementById('inboxBtn').style.display='block';document.getElementById('adminPageBtn').style.display='block';alert('Login Berjaya!')}else{alert('Username atau Password salah!')}}
+function toggleAccess(){accessOpen=!accessOpen;document.getElementById('accessStatus').innerText="Akses Sekarang: "+(accessOpen?"Dibuka":"Ditutup")}
+function showPage(id){['homePage','bookingPage','returnPage','adminPage'].forEach(p=>document.getElementById(p).style.display='none');updateTable();document.getElementById(id).style.display='block'}
+
+// UPDATE TABLE
 function updateTable(){
-    const tb=document.getElementById('bookingTable1').querySelector('tbody'); tb.innerHTML='';
-    bookings.forEach(b=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${b.ref}</td><td>${b.name}</td><td>${b.date}</td><td>${b.purpose}</td><td>${b.laptop}</td><td>${b.lcd}</td><td>${b.accessory?.join(', ')}</td>`;
-        tb.appendChild(tr);
+    ['bookingTable1','bookingTable2'].forEach(tid=>{
+        const tb=document.getElementById(tid).querySelector('tbody');tb.innerHTML='';
+        bookings.forEach(b=>{
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td>${b.ref}</td><td>${b.name}</td><td>${b.date}</td><td>${b.purpose}</td><td>${b.laptop}</td><td>${b.lcd}</td><td>${b.accessory.join(', ')}</td>`;
+            tb.appendChild(tr);
+        });
     });
+    updateDropdowns();
 }
 
-// --- LOAD DATA FIRESTORE ---
-async function loadAllData(){
-    const snapBookings = await getDocs(bookingsCol);
-    bookings = snapBookings.docs.map(d=>d.data());
+// UPDATE DROPDOWN & STOCK
+function updateDropdowns(){
+    const laptopsBooked=bookings.filter(b=>b.laptop!=='NONE').map(b=>b.laptop);
+    const lcdBooked=bookings.filter(b=>b.lcd!=='NONE').map(b=>b.lcd);
+
+    // reset stock
+    accessoryStock = { 'HDMI':3,'MOUSE':3,'CHARGER LAPTOP':3,'POWER PLUG LCD':3 };
+    bookings.forEach(b=>{b.accessory.forEach(a=>{if(a!=='NONE') accessoryStock[a]--;}); });
+
+    // laptop & lcd
+    const laptopOptions=document.getElementById('laptop').options;
+    for(let i=0;i<laptopOptions.length;i++){ laptopOptions[i].disabled=laptopsBooked.includes(laptopOptions[i].value); }
+    const lcdOptions=document.getElementById('lcd').options;
+    for(let i=0;i<lcdOptions.length;i++){ lcdOptions[i].disabled=lcdBooked.includes(lcdOptions[i].value); }
+
+    // accessory checkboxes
+    const accessoryCheckboxes=document.querySelectorAll('#accessoryOptions input[type="checkbox"]');
+    let selected = Array.from(accessoryCheckboxes).filter(c=>c.checked && c.value!=='NONE');
+    let noneCheckbox = Array.from(accessoryCheckboxes).find(c=>c.value==='NONE');
+    accessoryCheckboxes.forEach(c=>{
+        if(c.value!=='NONE') c.disabled = accessoryStock[c.value]<=0 || noneCheckbox.checked;
+    });
+    noneCheckbox.disabled = selected.length>0;
+}
+const accessoryCheckboxes = document.querySelectorAll('#accessoryOptions input[type="checkbox"]');
+accessoryCheckboxes.forEach(cb=>cb.addEventListener('change',function(){
+    let selected = Array.from(accessoryCheckboxes).filter(c=>c.checked && c.value!=='NONE');
+    let noneCheckbox = Array.from(accessoryCheckboxes).find(c=>c.value==='NONE');
+    if(selected.length>0){ noneCheckbox.disabled=true; }
+    else{ noneCheckbox.disabled=false; }
+    if(noneCheckbox.checked){ accessoryCheckboxes.forEach(c=>{if(c.value!=='NONE') c.disabled=true;}); }
+    else{ accessoryCheckboxes.forEach(c=>{if(c.value!=='NONE') c.disabled=false;}); }
+}));
+
+// PEMINJAMAN
+document.getElementById('bookingForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!accessOpen){ alert('Akses Peminjaman ditutup!'); return; }
+    const name = document.getElementById('name').value.trim();
+    const date = document.getElementById('date').value;
+    const purpose = document.getElementById('purpose').value.trim();
+    const laptop = document.getElementById('laptop').value;
+    const lcd = document.getElementById('lcd').value;
+    let accessory = Array.from(accessoryCheckboxes).filter(c=>c.checked).map(c=>c.value);
+    if([laptop,lcd].every(a=>'NONE'===a) && accessory.length===0){ alert('Sila pilih sekurang-kurangnya satu aset.'); return; }
+    const ref = generateRef();
+    bookings.push({ref,name,date,purpose,laptop,lcd,accessory});
+    alert('Peminjaman berjaya! Reference Code: '+ref);
+    this.reset();
+    accessoryCheckboxes.forEach(c=>c.disabled=false);
     updateTable();
+});
+
+// PEMULANGAN
+document.getElementById('returnForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!accessOpen){ alert('Akses Pemulangan ditutup!'); return; }
+    const ref = document.getElementById('refCode').value.trim();
+    const returnDate = document.getElementById('returnDate').value;
+    const status = document.getElementById('status').value;
+    const notes = document.getElementById('notes').value.trim();
+    const index = bookings.findIndex(b=>b.ref===ref);
+    if(index===-1){ alert('Reference code tidak ditemui!'); return; }
+    if(status==='incomplete' && notes===''){ alert('Sila isi keterangan jika barang TIDAK lengkap!'); return; }
+    let b = bookings[index];
+    history.push({ref:b.ref,name:b.name,date:b.date,purpose:b.purpose,laptop:b.laptop,lcd:b.lcd,accessory:b.accessory,status:status,notes:notes,timestamp:Date.now()});
+    if(status==='incomplete'){ inboxAdmin.push({ref:b.ref,name:b.name,date:b.date,notes:notes}); if(adminLoggedIn)alert('Barang tidak lengkap. Keterangan dihantar ke inbox admin.'); }
+    else{ if(adminLoggedIn)alert('Barang berjaya dikembalikan lengkap!'); }
+    if(b.accessory!=='NONE'){ b.accessory.forEach(a=>{if(a!=='NONE') accessoryStock[a]++;}); }
+    bookings.splice(index,1);
+    this.reset();
+    updateTable();
+});
+
+// STATUS KETERANGAN WAJIB
+document.getElementById('status').addEventListener('change',function(){
+    document.getElementById('notes').disabled = this.value==='complete';
+});
+
+// ADMIN REFERENCE CHECK
+function checkReference(){
+    const ref=document.getElementById('adminRefCheck').value.trim();
+    let rec=bookings.find(b=>b.ref===ref);
+    let hist=history.find(h=>h.ref===ref && (Date.now()-h.timestamp<=60*24*60*60*1000));
+    if(rec){document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${rec.ref}<br><b>Nama:</b> ${rec.name}<br><b>Tarikh:</b> ${rec.date}<br><b>Tujuan:</b> ${rec.purpose}<br><b>Laptop:</b> ${rec.laptop}<br><b>LCD:</b> ${rec.lcd}<br><b>Aksesori:</b> ${rec.accessory.join(', ')}<br><b>Status:</b> Sedang Dipinjam`;}
+    else if(hist){document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${hist.ref}<br><b>Nama:</b> ${hist.name}<br><b>Tarikh Peminjaman:</b> ${hist.date}<br><b>Tujuan:</b> ${hist.purpose}<br><b>Laptop:</b> ${hist.laptop}<br><b>LCD:</b> ${hist.lcd}<br><b>Aksesori:</b> ${hist.accessory.join(', ')}<br><b>Status:</b> ${hist.status}<br><b>Keterangan:</b> ${hist.notes}`;}
+    else{document.getElementById('refDetails').innerText="Reference tidak ditemui atau lebih 60 hari.";}
 }
 
-// --- EVENT LISTENERS AFTER DOM READY ---
-window.addEventListener('DOMContentLoaded', async ()=>{
-    await loadAllData();
-
-    // Buttons
-    document.getElementById('loginBtn').onclick = ()=>document.getElementById('loginModal').style.display='flex';
-    document.getElementById('inboxBtn').onclick = ()=>document.getElementById('adminInboxModal').style.display='flex';
-    document.getElementById('adminPageBtn').onclick = ()=>showPage('adminPage');
-    document.getElementById('gotoBookingBtn').onclick = ()=>showPage('bookingPage');
-    document.getElementById('backHomeFromBooking').onclick = ()=>showPage('homePage');
-
-    // Booking form
-    document.getElementById('bookingForm').addEventListener('submit', async e=>{
-        e.preventDefault();
-        const name = document.getElementById('name').value;
-        const date = document.getElementById('date').value;
-        const purpose = document.getElementById('purpose').value;
-        const laptop = document.getElementById('laptop').value;
-        const lcd = document.getElementById('lcd').value;
-        const accessory = Array.from(document.querySelectorAll('#accessoryOptions input[type="checkbox"]:checked')).map(c=>c.value);
-        const ref = generateRef();
-        const bObj = {ref,name,date,purpose,laptop,lcd,accessory};
-        bookings.push(bObj);
-        await setDoc(doc(db,'bookings',ref), bObj);
-        updateTable();
-        alert('Peminjaman berjaya! Reference: '+ref);
-        document.getElementById('bookingForm').reset();
-    });
-});
+// ADMIN HISTORY 60 HARI
+function showHistory(){
+    const recent=history.filter(h=>Date.now()-h.timestamp<=60*24*60*60*1000);
+    document.getElementById('historyContent').innerHTML=recent.length===0?'<p>Tidak ada rekod.</p>':recent.map(h=>`<p>${h.ref} - Status: ${h.status}</p>`).join('');
+    document.getElementById('adminHistoryModal').style.display='flex';
+}
 </script>
-
 </body>
 </html>
