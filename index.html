@@ -36,6 +36,8 @@ textarea:disabled{background:#2c2c2c;color:#888}
 .modal-content h2{color:#ffd700;margin-bottom:20px;text-align:center}
 #adminInboxModal .modal-content,#adminHistoryModal .modal-content{max-height:80vh;overflow-y:auto}
 #accessoryOptions label{display:block;margin-bottom:5px}
+.time-range-group{display:flex;gap:10px}
+.time-range-group div{flex:1;display:flex;flex-direction:column;gap:5px}
 @media(max-width:768px){.container{padding:20px}h1{font-size:1.8rem}.section h2{font-size:1.2rem}input,select,textarea,button{font-size:15px}}
 @media(max-width:480px){h1{font-size:1.5rem}.section h2{font-size:1rem}input,select,textarea,button{font-size:14px;padding:8px}th,td{padding:8px;min-width:70px}#loginBtn{padding:8px 16px;font-size:0.9rem}}
 </style>
@@ -48,7 +50,6 @@ textarea:disabled{background:#2c2c2c;color:#888}
 <button id="adminPageBtn" onclick="showPage('adminPage')">Admin Panel</button>
 </h1>
 
-<!-- Login Modal -->
 <div id="loginModal" class="modal">
 <div class="modal-content">
 <h2>Login Admin</h2>
@@ -59,7 +60,6 @@ textarea:disabled{background:#2c2c2c;color:#888}
 </div>
 </div>
 
-<!-- Admin Inbox Modal -->
 <div id="adminInboxModal" class="modal">
 <div class="modal-content">
 <h2>Inbox Admin - Barang Tidak Lengkap</h2>
@@ -68,7 +68,6 @@ textarea:disabled{background:#2c2c2c;color:#888}
 </div>
 </div>
 
-<!-- Admin History Modal -->
 <div id="adminHistoryModal" class="modal">
 <div class="modal-content">
 <h2>Jadual Pemulangan (60 Hari)</h2>
@@ -77,7 +76,6 @@ textarea:disabled{background:#2c2c2c;color:#888}
 </div>
 </div>
 
-<!-- Home Page -->
 <div class="container" id="homePage">
 <div class="home-buttons">
 <button onclick="showPage('bookingPage')">Menu Peminjaman</button>
@@ -85,30 +83,52 @@ textarea:disabled{background:#2c2c2c;color:#888}
 </div>
 </div>
 
-<!-- Booking Page -->
 <div class="container" id="bookingPage" style="display:none;">
 <div class="section">
 <h2>Form Peminjaman</h2>
 <form id="bookingForm">
 <label>Nama:</label>
 <input type="text" id="name" required>
+
 <label>Tarikh Peminjaman:</label>
 <input type="date" id="date" required>
+
+<div class="time-range-group">
+    <div>
+        <label>Masa Mula:</label>
+        <select id="startTime" required>
+            </select>
+    </div>
+    <div>
+        <label>Masa Tamat:</label>
+        <select id="endTime" required>
+            </select>
+    </div>
+</div>
+
 <label>Tujuan:</label>
 <textarea id="purpose" rows="2" required></textarea>
 <label>Laptop:</label>
 <select id="laptop" required>
 <option value="NONE">NONE</option>
-<option value="0301">0301</option>
-<option value="0302">0302</option>
-<option value="0303">0303</option>
+<option value="LAPTOP HP229">LAPTOP HP229</option>
+<option value="LAPTOP HP230">LAPTOP HP230</option>
+<option value="LAPTOP LENOVO 0307">LAPTOP LENOVO 0307</option>
+<option value="LAPTOP LENOVO 0308">LAPTOP LENOVO 0308</option>
+<option value="LAPTOP LENOVO 0309">LAPTOP LENOVO 0309</option>
 </select>
 <label>LCD:</label>
 <select id="lcd" required>
 <option value="NONE">NONE</option>
-<option value="JPA1">JPA1</option>
-<option value="JPA2">JPA2</option>
-<option value="JPA3">JPA3</option>
+<option value="LCD 128">LCD 128</option>
+<option value="LCD 129">LCD 129</option>
+<option value="LCD 130">LCD 130</option>
+<option value="LCD 836">LCD 836</option>
+<option value="LCD 837">LCD 837</option>
+<option value="LCD JPA 1">LCD JPA 1</option>
+<option value="LCD JPA 6">LCD JPA 6</option>
+<option value="LCD JPA 7">LCD JPA 7</option>
+<option value="LCD JPA 8">LCD JPA 8</option>
 </select>
 <label>Aksesori:</label>
 <div id="accessoryOptions">
@@ -125,13 +145,12 @@ textarea:disabled{background:#2c2c2c;color:#888}
 <div class="section booking-list">
 <h2>Senarai Peminjaman Aktif</h2>
 <table id="bookingTable1">
-<thead><tr><th>Reference</th><th>Nama</th><th>Tarikh</th><th>Tujuan</th><th>Laptop</th><th>LCD</th><th>Aksesori</th></tr></thead>
+<thead><tr><th>Reference</th><th>Nama</th><th>Tarikh & Masa</th><th>Tujuan</th><th>Laptop</th><th>LCD</th><th>Aksesori</th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
 </div>
 
-<!-- Return Page -->
 <div class="container" id="returnPage" style="display:none;">
 <div class="section">
 <h2>Form Pemulangan</h2>
@@ -154,13 +173,12 @@ textarea:disabled{background:#2c2c2c;color:#888}
 <div class="section booking-list">
 <h2>Senarai Peminjaman Aktif</h2>
 <table id="bookingTable2">
-<thead><tr><th>Reference</th><th>Nama</th><th>Tarikh</th><th>Tujuan</th><th>Laptop</th><th>LCD</th><th>Aksesori</th></tr></thead>
+<thead><tr><th>Reference</th><th>Nama</th><th>Tarikh & Masa</th><th>Tujuan</th><th>Laptop</th><th>LCD</th><th>Aksesori</th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
 </div>
 
-<!-- Admin Panel -->
 <div class="container" id="adminPage" style="display:none;">
 <div class="section">
 <h2>Admin Panel</h2>
@@ -176,12 +194,11 @@ textarea:disabled{background:#2c2c2c;color:#888}
 </div>
 </div>
 
-<!-- SDK FIREBASE (COMPAT) UNTUK AUTOMATIK LIVE SYNC -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <script>
-// INFO CONFIG PROJEK FIREBASE KORANG (Dah dimasukkan dengan betul)
+// INFO CONFIG PROJEK FIREBASE KORANG
 const firebaseConfig = {
   apiKey: "AIzaSyDsVRGwt04SKCQ-RVI7ll3i6lCCzNZS8WU",
   authDomain: "bookingwoi-8fcf2.firebaseapp.com",
@@ -207,6 +224,47 @@ let accessOpen=true;
 
 // STOCK UNTUK AKSESORI
 let accessoryStock = { 'HDMI':3,'MOUSE':3,'CHARGER LAPTOP':3,'POWER PLUG LCD':3 };
+
+// GENERATE PILIHAN MASA (8:00 AM HINGGA 12:00 AM)
+function populateTimeDropdowns() {
+    const startSelect = document.getElementById('startTime');
+    const endSelect = document.getElementById('endTime');
+    startSelect.innerHTML = '';
+    endSelect.innerHTML = '';
+
+    let times = [];
+    
+    // Generate dari jam 8 Pagi (8:00) hingga jam 11 Malam (23:30)
+    for (let hour = 8; hour < 24; hour++) {
+        for (let min of ['00', '30']) {
+            let displayHour = hour % 12 === 0 ? 12 : hour % 12;
+            let ampm = hour >= 12 ? 'PM' : 'AM';
+            times.push({
+                value: `${hour.toString().padStart(2, '0')}:${min}`,
+                label: `${displayHour}:${min} ${ampm}`
+            });
+        }
+    }
+    // Tambah tepat jam 12:00 AM (Tengah Malam) di penghujung list
+    times.push({ value: "24:00", label: "12:00 AM" });
+
+    times.forEach(t => {
+        if(t.value !== "24:00") { // Masa mula tak boleh start tepat tengah malam
+            let optStart = document.createElement('option');
+            optStart.value = t.label;
+            optStart.innerText = t.label;
+            startSelect.appendChild(optStart);
+        }
+
+        if(t.value !== "08:00") { // Masa tamat tak boleh berakhir sebelum/pada pukul 8 pagi
+            let optEnd = document.createElement('option');
+            optEnd.value = t.label;
+            optEnd.innerText = t.label;
+            endSelect.appendChild(optEnd);
+        }
+    });
+}
+populateTimeDropdowns();
 
 // FUNCTIONS
 function generateRef(){return 'REF'+Date.now()+'-'+Math.floor(Math.random()*10000);}
@@ -249,7 +307,9 @@ function updateTable(){
         const tb=document.getElementById(tid).querySelector('tbody');tb.innerHTML='';
         bookings.forEach(b=>{
             const tr=document.createElement('tr');
-            tr.innerHTML=`<td>${b.ref}</td><td>${b.name}</td><td>${b.date}</td><td>${b.purpose}</td><td>${b.laptop}</td><td>${b.lcd}</td><td>${b.accessory.join(', ')}</td>`;
+            // Paparkan sekali julat masa peminjaman pada lajur tarikh
+            const timeDisplay = (b.startTime && b.endTime) ? `<br><small>(${b.startTime} - ${b.endTime})</small>` : '';
+            tr.innerHTML=`<td>${b.ref}</td><td>${b.name}</td><td>${b.date}${timeDisplay}</td><td>${b.purpose}</td><td>${b.laptop}</td><td>${b.lcd}</td><td>${b.accessory.join(', ')}</td>`;
             tb.appendChild(tr);
         });
     });
@@ -289,7 +349,6 @@ accessoryCheckboxes.forEach(cb=>cb.addEventListener('change',function(){
 // PENGURUSAN DATA CLOUD (REAL-TIME SNAPSHOT)
 // ==========================================
 
-// Mengambil dan memantau perubahan data dari Cloud secara LIVE
 systemDocRef.onSnapshot((doc) => {
     if (doc.exists) {
         const data = doc.data();
@@ -303,7 +362,6 @@ systemDocRef.onSnapshot((doc) => {
     }
 });
 
-// Menghantar data terkini ke Cloud Firestore
 function saveDataToFirebase(){
     systemDocRef.set({
         bookings: bookings,
@@ -319,18 +377,24 @@ document.getElementById('bookingForm').addEventListener('submit', function(e){
     if(!accessOpen){ alert('Akses Peminjaman ditutup!'); return; }
     const name = document.getElementById('name').value.trim();
     const date = document.getElementById('date').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
     const purpose = document.getElementById('purpose').value.trim();
     const laptop = document.getElementById('laptop').value;
     const lcd = document.getElementById('lcd').value;
+    
     let accessory = Array.from(accessoryCheckboxes).filter(c=>c.checked).map(c=>c.value);
     if([laptop,lcd].every(a=>'NONE'===a) && accessory.length===0){ alert('Sila pilih sekurang-kurangnya satu aset.'); return; }
+    
     const ref = generateRef();
-    bookings.push({ref,name,date,purpose,laptop,lcd,accessory});
+    // Simpan maklumat masa sekali ke dalam array objek
+    bookings.push({ref,name,date,startTime,endTime,purpose,laptop,lcd,accessory});
     alert('Peminjaman berjaya! Reference Code: '+ref);
     this.reset();
+    populateTimeDropdowns(); // Reset semula dropdown masa
     accessoryCheckboxes.forEach(c=>c.disabled=false);
     updateTable();
-    saveDataToFirebase(); // Simpan automatik ke cloud
+    saveDataToFirebase();
 });
 
 // PEMULANGAN
@@ -345,17 +409,16 @@ document.getElementById('returnForm').addEventListener('submit', function(e){
     if(index===-1){ alert('Reference code tidak ditemui!'); return; }
     if(status==='incomplete' && notes===''){ alert('Sila isi keterangan jika barang TIDAK lengkap!'); return; }
     let b = bookings[index];
-    history.push({ref:b.ref,name:b.name,date:b.date,purpose:b.purpose,laptop:b.laptop,lcd:b.lcd,accessory:b.accessory,status:status,notes:notes,timestamp:Date.now()});
+    history.push({ref:b.ref,name:b.name,date:b.date,startTime:b.startTime || '',endTime:b.endTime || '',purpose:b.purpose,laptop:b.laptop,lcd:b.lcd,accessory:b.accessory,status:status,notes:notes,timestamp:Date.now()});
     if(status==='incomplete'){ inboxAdmin.push({ref:b.ref,name:b.name,date:b.date,notes:notes}); if(adminLoggedIn)alert('Barang tidak lengkap. Keterangan dihantar ke inbox admin.'); }
     else{ if(adminLoggedIn)alert('Barang berjaya dikembalikan lengkap!'); }
     if(b.accessory!=='NONE'){ b.accessory.forEach(a=>{if(a!=='NONE') accessoryStock[a]++;}); }
     bookings.splice(index,1);
     this.reset();
     updateTable();
-    saveDataToFirebase(); // Simpan automatik ke cloud
+    saveDataToFirebase();
 });
 
-// STATUS KETERANGAN WAJIB
 document.getElementById('status').addEventListener('change',function(){
     document.getElementById('notes').disabled = this.value==='complete';
 });
@@ -365,8 +428,13 @@ function checkReference(){
     const ref=document.getElementById('adminRefCheck').value.trim();
     let rec=bookings.find(b=>b.ref===ref);
     let hist=history.find(h=>h.ref===ref && (Date.now()-h.timestamp<=60*24*60*60*1000));
-    if(rec){document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${rec.ref}<br><b>Nama:</b> ${rec.name}<br><b>Tarikh:</b> ${rec.date}<br><b>Tujuan:</b> ${rec.purpose}<br><b>Laptop:</b> ${rec.laptop}<br><b>LCD:</b> ${rec.lcd}<br><b>Aksesori:</b> ${rec.accessory.join(', ') }<br><b>Status:</b> Sedang Dipinjam`;}
-    else if(hist){document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${hist.ref}<br><b>Nama:</b> ${hist.name}<br><b>Tarikh Peminjaman:</b> ${hist.date}<br><b>Tujuan:</b> ${hist.purpose}<br><b>Laptop:</b> ${hist.laptop}<br><b>LCD:</b> ${hist.lcd}<br><b>Aksesori:</b> ${hist.accessory.join(', ')}<br><b>Status:</b> ${hist.status}<br><b>Keterangan:</b> ${hist.notes}`;}
+    if(rec){
+        const timeStr = (rec.startTime && rec.endTime) ? `<br><b>Masa:</b> ${rec.startTime} - ${rec.endTime}` : '';
+        document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${rec.ref}<br><b>Nama:</b> ${rec.name}<br><b>Tarikh:</b> ${rec.date}${timeStr}<br><b>Tujuan:</b> ${rec.purpose}<br><b>Laptop:</b> ${rec.laptop}<br><b>LCD:</b> ${rec.lcd}<br><b>Aksesori:</b> ${rec.accessory.join(', ') }<br><b>Status:</b> Sedang Dipinjam`;
+    }
+    else if(hist){
+        const timeStr = (hist.startTime && hist.endTime) ? `<br><b>Masa:</b> ${hist.startTime} - ${hist.endTime}` : '';
+        document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${hist.ref}<br><b>Nama:</b> ${hist.name}<br><b>Tarikh Peminjaman:</b> ${hist.date}${timeStr}<br><b>Tujuan:</b> ${hist.purpose}<br><b>Laptop:</b> ${hist.laptop}<br><b>LCD:</b> ${hist.lcd}<br><b>Aksesori:</b> ${hist.accessory.join(', ')}<br><b>Status:</b> ${hist.status}<br><b>Keterangan:</b> ${hist.notes}`;}
     else{document.getElementById('refDetails').innerText="Reference tidak ditemui atau lebih 60 hari.";}
 }
 
