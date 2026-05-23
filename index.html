@@ -35,13 +35,15 @@ textarea:disabled{background:#2c2c2c;color:#888}
 .modal-content{background:#2c2c2c;padding:30px;border-radius:20px;width:90%;max-width:480px;box-shadow:0px 10px 30px rgba(0,0,0,0.8)}
 .modal-content h2{color:#ffd700;margin-bottom:20px;text-align:center}
 #adminInboxModal .modal-content,#adminHistoryModal .modal-content{max-height:80vh;overflow-y:auto}
-#accessoryOptions label{display:block;margin-bottom:5px}
+#accessoryOptions label{display:block;margin-bottom:8px;font-size:0.95rem;cursor:pointer}
 .time-range-group{display:flex;gap:10px}
 .time-range-group div{flex:1;display:flex;flex-direction:column;gap:5px}
 .report-item{border-bottom:1px solid #444;padding:10px 0;font-size:0.95rem}
 .report-item:last-child{border-bottom:none}
 .filter-group{background:rgba(58,58,58,0.5);padding:15px;border-radius:12px;margin-bottom:15px;border:1px solid #555}
 .filter-group label{font-size:0.9rem;margin-bottom:4px;display:block}
+.stock-badge{font-size:0.8rem;margin-left:5px;font-weight:bold;color:#ffd700}
+.stock-empty{font-size:0.8rem;margin-left:5px;font-weight:bold;color:#ff4500}
 @media(max-width:768px){.container{padding:20px}h1{font-size:1.8rem}.section h2{font-size:1.2rem}input,select,textarea,button{font-size:15px}}
 @media(max-width:480px){h1{font-size:1.5rem}.section h2{font-size:1rem}input,select,textarea,button{font-size:14px;padding:8px}th,td{padding:8px;min-width:70px}#loginBtn{padding:8px 16px;font-size:0.9rem}}
 </style>
@@ -151,10 +153,10 @@ textarea:disabled{background:#2c2c2c;color:#888}
 </select>
 <label>Aksesori:</label>
 <div id="accessoryOptions">
-<label><input type="checkbox" value="HDMI"> HDMI</label>
-<label><input type="checkbox" value="MOUSE"> MOUSE</label>
-<label><input type="checkbox" value="CHARGER LAPTOP"> CHARGER LAPTOP</label>
-<label><input type="checkbox" value="POWER PLUG LCD"> POWER PLUG LCD</label>
+<label><input type="checkbox" value="HDMI"> HDMI <span id="stock_HDMI" class="stock-badge"></span></label>
+<label><input type="checkbox" value="MOUSE"> MOUSE <span id="stock_MOUSE" class="stock-badge"></span></label>
+<label><input type="checkbox" value="CHARGER LAPTOP"> CHARGER LAPTOP <span id="stock_CHARGER_LAPTOP" class="stock-badge"></span></label>
+<label><input type="checkbox" value="POWER PLUG LCD"> POWER PLUG LCD <span id="stock_POWER_PLUG_LCD" class="stock-badge"></span></label>
 <label><input type="checkbox" value="NONE"> NONE</label>
 </div>
 <button type="submit">Submit Peminjaman</button>
@@ -239,7 +241,8 @@ let history=[];
 let adminLoggedIn=false;
 let accessOpen=true;
 
-let accessoryStock = { 'HDMI':3,'MOUSE':3,'CHARGER LAPTOP':3,'POWER PLUG LCD':3 };
+// PENETAPAN HAD STOK BARU MENGIKUT PERMINTAAN
+let accessoryStock = { 'HDMI': 5, 'MOUSE': 5, 'CHARGER LAPTOP': 5, 'POWER PLUG LCD': 9 };
 
 function populateTimeDropdowns() {
     const startSelect = document.getElementById('startTime');
@@ -327,17 +330,40 @@ function updateTable(){
 function updateDropdowns(){
     const laptopsBooked=bookings.filter(b=>b.laptop!=='NONE').map(b=>b.laptop);
     const lcdBooked=bookings.filter(b=>b.lcd!=='NONE').map(b=>b.lcd);
-    accessoryStock = { 'HDMI':3,'MOUSE':3,'CHARGER LAPTOP':3,'POWER PLUG LCD':3 };
-    bookings.forEach(b=>{b.accessory.forEach(a=>{if(a!=='NONE') accessoryStock[a]--;}); });
+    
+    // Tetapkan baki stok asal berasaskan had stok maksimum baharu
+    accessoryStock = { 'HDMI': 5, 'MOUSE': 5, 'CHARGER LAPTOP': 5, 'POWER PLUG LCD': 9 };
+    
+    // Tolak baki sekiranya barang sedang aktif dipinjam
+    bookings.forEach(b=>{b.accessory.forEach(a=>{if(a!=='NONE' && accessoryStock[a] !== undefined) accessoryStock[a]--;}); });
+    
     const laptopOptions=document.getElementById('laptop').options;
     for(let i=0;i<laptopOptions.length;i++){ laptopOptions[i].disabled=laptopsBooked.includes(laptopOptions[i].value); }
     const lcdOptions=document.getElementById('lcd').options;
     for(let i=0;i<lcdOptions.length;i++){ lcdOptions[i].disabled=lcdBooked.includes(lcdOptions[i].value); }
+    
+    // Kemaskini element teks dan status baki pada UI borang
     const accessoryCheckboxes=document.querySelectorAll('#accessoryOptions input[type="checkbox"]');
     let selected = Array.from(accessoryCheckboxes).filter(c=>c.checked && c.value!=='NONE');
     let noneCheckbox = Array.from(accessoryCheckboxes).find(c=>c.value==='NONE');
+    
     accessoryCheckboxes.forEach(c=>{
-        if(c.value!=='NONE') c.disabled = accessoryStock[c.value]<=0 || noneCheckbox.checked;
+        if(c.value!=='NONE') {
+            c.disabled = accessoryStock[c.value]<=0 || noneCheckbox.checked;
+            
+            // Format ID element id penunjuk baki (Gantikan ruang kosong kepada symbol '_')
+            let elementId = "stock_" + c.value.replace(/ /g, "_");
+            let badge = document.getElementById(elementId);
+            if(badge) {
+                if(accessoryStock[c.value] <= 0) {
+                    badge.innerText = "(HABIS)";
+                    badge.className = "stock-empty";
+                } else {
+                    badge.innerText = `(Baki: ${accessoryStock[c.value]})`;
+                    badge.className = "stock-badge";
+                }
+            }
+        }
     });
     noneCheckbox.disabled = selected.length>0;
 }
@@ -375,9 +401,8 @@ function saveDataToFirebase(){
     }).catch(err => console.error("Gagal update data ke Firebase: ", err));
 }
 
-// PADAM SEMUA DATA DARI CLOUD FIREBASE
 function clearAllData() {
-    const confirm1 = confirm("⚠️ AMARAN! Adakah anda pasti mahu memadam SEMUA rekod peminjaman, sejarah pemulangan dan laporan inbox di dalam sistem?");
+    const confirm1 = confirm("⚠️ AMARAN! Adakah awak pasti mahu memadam SEMUA rekod peminjaman, sejarah pemulangan dan laporan inbox di dalam sistem?");
     if (confirm1) {
         const confirm2 = confirm("PENGESAHAN KEDUA: Tindakan ini TIDAK BOLEH dikembalikan. Klik OK untuk padam semua.");
         if (confirm2) {
@@ -385,7 +410,7 @@ function clearAllData() {
             inboxAdmin = [];
             history = [];
             saveDataToFirebase();
-            alert("Semua rekod sistem telah berjaya dipadam sepenuhnya!");
+            alert("Semua rekod sistem telah berjaya dipadamkan sepenuhnya!");
             showPage('homePage');
         }
     }
@@ -431,7 +456,6 @@ document.getElementById('returnForm').addEventListener('submit', function(e){
     history.push({ref:b.ref,name:b.name,date:b.date,startTime:b.startTime || '',endTime:b.endTime || '',purpose:b.purpose,laptop:b.laptop,lcd:b.lcd,accessory:b.accessory,status:status,notes:notes,timestamp:Date.now()});
     if(status==='incomplete'){ inboxAdmin.push({ref:b.ref,name:b.name,date:b.date,notes:notes}); if(adminLoggedIn)alert('Barang tidak lengkap. Keterangan dihantar ke inbox admin.'); }
     else{ if(adminLoggedIn)alert('Barang berjaya dikembalikan lengkap!'); }
-    if(b.accessory!=='NONE'){ b.accessory.forEach(a=>{if(a!=='NONE') accessoryStock[a]++;}); }
     bookings.splice(index,1);
     this.reset();
     updateTable();
@@ -464,7 +488,6 @@ function showHistory(){
     document.getElementById('adminHistoryModal').style.display = 'flex';
 }
 
-// FUNGSI UTAMA BINA STRUKTUR WINDOW TABS LAPORAN CETAKAN
 function generatePrintTemplate(dataList, titleSubtitle) {
     let tableRows = dataList.map((h, index) => {
         return `
@@ -506,7 +529,7 @@ function generatePrintTemplate(dataList, titleSubtitle) {
         <body>
             <button class="print-btn" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
             <div class="header">
-                <h1>Laporan Pemulangan Aset JPA</h1>
+                <h1>Laporan Rasmi Pemulangan Aset ICT</h1>
                 <p>${titleSubtitle}</p>
             </div>
             <div class="meta-info">
@@ -531,13 +554,12 @@ function generatePrintTemplate(dataList, titleSubtitle) {
                     ${tableRows}
                 </tbody>
             </table>
-            <div class="footer">Dicetak secara automatik daripada sistem</div>
+            <div class="footer">Dicetak secara automatik daripada Asset Booking System</div>
         </body>
         </html>
     `;
 }
 
-// 1. CETAK LAPORAN PENUH (SEMUA REKOD)
 function printFullReport() {
     const recent = history.filter(h => Date.now() - h.timestamp <= 60 * 24 * 60 * 60 * 1000);
     if(recent.length === 0) { alert("Tiada rekod data pemulangan untuk dicetak!"); return; }
@@ -547,13 +569,12 @@ function printFullReport() {
     reportWindow.document.close();
 }
 
-// 2. CETAK LAPORAN MENGIKUT RANGE TARIKH (FILTERED)
 function printFilteredReport() {
     const startInput = document.getElementById('filterStartDate').value;
     const endInput = document.getElementById('filterEndDate').value;
 
     if(!startInput || !endInput) {
-        alert("Sila pilih Tarikh Mula DAN Tarikh Tamat terlebih dahulu!");
+        alert("Sila pilih kedua-dua Tarikh Mula dan Tarikh Tamat terlebih dahulu!");
         return;
     }
 
@@ -567,7 +588,6 @@ function printFilteredReport() {
         return;
     }
 
-    // Filter sejarah berdasarkan range tarikh peminjaman (h.date)
     const filtered = history.filter(h => {
         const recordDate = new Date(h.date);
         return recordDate >= startDate && recordDate <= endDate;
@@ -579,7 +599,7 @@ function printFilteredReport() {
     }
 
     const reportWindow = window.open('', '_blank');
-    const subtitle = `Rekod Mengikut Tarikh: Peminjaman Dari ${new Date(startInput).toLocaleDateString('ms-MY')} Hingga ${new Date(endInput).toLocaleDateString('ms-MY')}`;
+    const subtitle = `Rekod Tapis Mengikut Tarikh: Peminjaman Dari ${new Date(startInput).toLocaleDateString('ms-MY')} Hingga ${new Date(endInput).toLocaleDateString('ms-MY')}`;
     reportWindow.document.write(generatePrintTemplate(filtered, subtitle));
     reportWindow.document.close();
 }
