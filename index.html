@@ -1,608 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Asset Booking System</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-body{font-family:'Roboto',sans-serif;margin:0;padding:0;color:#f0f0f0;background:linear-gradient(-45deg,#1f1f1f,#2c2c2c,#3a3a3a,#2c2c2c);background-size:400% 400%;animation:gradientBG 20s ease infinite}
-@keyframes gradientBG{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-h1{text-align:center;margin-top:20px;color:#ffd700;text-shadow:1px 1px 4px #000;font-size:2rem;position:relative}
-#loginBtn{position:absolute;top:20px;right:20px;padding:10px 20px;border-radius:15px;border:none;cursor:pointer;background:linear-gradient(45deg,#ffd700,#ffb700);font-weight:600;color:#1f1f1f;font-size:1rem;transition:all 0.3s ease}
-#loginBtn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(255,215,0,0.8)}
-#inboxBtn{position:absolute;top:60px;right:20px;padding:8px 18px;border-radius:15px;border:none;cursor:pointer;background:linear-gradient(45deg,#ff8c00,#ffb700);font-weight:600;color:#1f1f1f;font-size:0.9rem;display:none}
-#inboxBtn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(255,140,0,0.8)}
-#adminPageBtn{position:absolute;top:100px;right:20px;padding:8px 18px;border-radius:15px;border:none;cursor:pointer;background:linear-gradient(45deg,#00bfff,#1e90ff);font-weight:600;color:#1f1f1f;font-size:0.9rem;display:none}
-#adminPageBtn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,191,255,0.8)}
-.container{width:90%;max-width:600px;margin:30px auto;background:rgba(44,44,44,0.95);padding:25px 30px;border-radius:20px;box-shadow:0px 15px 40px rgba(0,0,0,0.7);backdrop-filter:blur(5px);transition:all 0.3s ease}
-.section h2{color:#ffd700;border-bottom:2px solid #ffd700;padding-bottom:5px;margin-bottom:15px;font-size:1.3rem}
-form{display:flex;flex-direction:column;gap:12px}
-label{font-weight:500;color:#e0e0e0}
-input,select,textarea{padding:10px;font-size:16px;border-radius:10px;border:none;outline:none;background:#3a3a3a;color:#f0f0f0;transition:all 0.3s ease}
-input:focus,select:focus,textarea:focus{border:1px solid #ffd700;box-shadow:0 0 15px rgba(255,215,0,0.5)}
-button{cursor:pointer;background:linear-gradient(45deg,#ffd700,#ffb700);color:#1f1f1f;font-weight:600;padding:14px;border-radius:15px;font-size:1rem;transition:all 0.3s ease}
-button:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(255,215,0,0.8)}
-.section{margin-bottom:35px}
-.booking-list table{width:100%;border-collapse:collapse;background:rgba(44,44,44,0.9);color:#f0f0f0;overflow-x:auto;display:block}
-th,td{padding:12px;border:1px solid #444;text-align:center;min-width:80px}
-th{background:#3a3a3a;color:#ffd700}
-tr:nth-child(even){background:#343434}
-tr:hover{background:#444444;transition:0.3s}
-textarea:disabled{background:#2c2c2c;color:#888}
-.home-buttons{display:flex;flex-direction:column;gap:20px;align-items:center;justify-content:center;margin-top:40px}
-.modal{display:none;position:fixed;z-index:100;left:0;top:0;width:100%;height:100%;overflow:auto;background:rgba(0,0,0,0.7);justify-content:center;align-items:center}
-.modal-content{background:#2c2c2c;padding:30px;border-radius:20px;width:90%;max-width:480px;box-shadow:0px 10px 30px rgba(0,0,0,0.8)}
-.modal-content h2{color:#ffd700;margin-bottom:20px;text-align:center}
-#adminInboxModal .modal-content,#adminHistoryModal .modal-content{max-height:80vh;overflow-y:auto}
-#accessoryOptions label{display:block;margin-bottom:8px;font-size:0.95rem;cursor:pointer}
-.time-range-group{display:flex;gap:10px}
-.time-range-group div{flex:1;display:flex;flex-direction:column;gap:5px}
-.report-item{border-bottom:1px solid #444;padding:10px 0;font-size:0.95rem}
-.report-item:last-child{border-bottom:none}
-.filter-group{background:rgba(58,58,58,0.5);padding:15px;border-radius:12px;margin-bottom:15px;border:1px solid #555}
-.filter-group label{font-size:0.9rem;margin-bottom:4px;display:block}
-.stock-badge{font-size:0.8rem;margin-left:5px;font-weight:bold;color:#ffd700}
-.stock-empty{font-size:0.8rem;margin-left:5px;font-weight:bold;color:#ff4500}
-@media(max-width:768px){.container{padding:20px}h1{font-size:1.8rem}.section h2{font-size:1.2rem}input,select,textarea,button{font-size:15px}}
-@media(max-width:480px){h1{font-size:1.5rem}.section h2{font-size:1rem}input,select,textarea,button{font-size:14px;padding:8px}th,td{padding:8px;min-width:70px}#loginBtn{padding:8px 16px;font-size:0.9rem}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Booking System</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Asset Booking System
-<button id="loginBtn" onclick="openLoginModal()">Login Admin</button>
-<button id="inboxBtn" onclick="openInboxModal()">Admin Inbox</button>
-<button id="adminPageBtn" onclick="showPage('adminPage')">Admin Panel</button>
-</h1>
+    <h1>Asset Booking System
+        <button id="loginBtn" onclick="openLoginModal()">Login Admin</button>
+        <button id="inboxBtn" onclick="openInboxModal()">Admin Inbox</button>
+        <button id="adminPageBtn" onclick="showPage('adminPage')">Admin Panel</button>
+    </h1>
 
-<div id="loginModal" class="modal">
-<div class="modal-content">
-<h2>Login Admin</h2>
-<input type="text" id="adminUsername" placeholder="Username">
-<input type="password" id="adminPassword" placeholder="Password">
-<button onclick="adminLogin()">Login</button>
-<button onclick="closeLoginModal()">Cancel</button>
-</div>
-</div>
-
-<div id="adminInboxModal" class="modal">
-<div class="modal-content">
-<h2>Inbox Admin - Barang Tidak Lengkap</h2>
-<div id="inboxContent"></div>
-<button onclick="closeInboxModal()">Close</button>
-</div>
-</div>
-
-<div id="adminHistoryModal" class="modal">
-<div class="modal-content">
-<h2>Jadual Pemulangan (60 Hari)</h2>
-
-<div class="filter-group">
-    <button onclick="printFullReport()" style="width:100%; background:linear-gradient(45deg, #00bfff, #1e90ff); color:white; padding:10px; margin-bottom:12px;">🖨️ Cetak Laporan Penuh (Semua)</button>
-    <hr style="border-color:#555; margin-bottom:12px;">
-    <div class="time-range-group" style="margin-bottom:10px;">
-        <div>
-            <label>Tarikh Mula:</label>
-            <input type="date" id="filterStartDate">
-        </div>
-        <div>
-            <label>Tarikh Tamat:</label>
-            <input type="date" id="filterEndDate">
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>Login Admin</h2>
+            <input type="text" id="adminUsername" placeholder="Username">
+            <input type="password" id="adminPassword" placeholder="Password">
+            <button onclick="adminLogin()">Login</button>
+            <button onclick="closeLoginModal()">Cancel</button>
         </div>
     </div>
-    <button onclick="printFilteredReport()" style="width:100%; background:linear-gradient(45deg, #2ecc71, #27ae60); color:white; padding:10px;">📅 Cetak Laporan Mengikut Tarikh</button>
-</div>
 
-<div id="historyContent"></div>
-<button onclick="closeHistoryModal()">Close</button>
-</div>
-</div>
-
-<div class="container" id="homePage">
-<div class="home-buttons">
-<button onclick="showPage('bookingPage')">Menu Peminjaman</button>
-<button onclick="showPage('returnPage')">Menu Pemulangan</button>
-</div>
-</div>
-
-<div class="container" id="bookingPage" style="display:none;">
-<div class="section">
-<h2>Form Peminjaman</h2>
-<form id="bookingForm">
-<label>Nama:</label>
-<input type="text" id="name" required>
-
-<label>Tarikh Peminjaman:</label>
-<input type="date" id="date" required>
-
-<div class="time-range-group">
-    <div>
-        <label>Masa Mula:</label>
-        <select id="startTime" required></select>
+    <div id="adminInboxModal" class="modal">
+        <div class="modal-content">
+            <h2>Inbox Admin - Barang Tidak Lengkap</h2>
+            <div id="inboxContent"></div>
+            <button onclick="closeInboxModal()">Close</button>
+        </div>
     </div>
-    <div>
-        <label>Masa Tamat:</label>
-        <select id="endTime" required></select>
+
+    <div id="adminHistoryModal" class="modal">
+        <div class="modal-content">
+            <h2>Jadual Pemulangan (60 Hari)</h2>
+
+            <div class="filter-group">
+                <button onclick="printFullReport()" style="width:100%; background:linear-gradient(45deg, #00bfff, #1e90ff); color:white; padding:10px; margin-bottom:12px;">🖨️ Cetak Laporan Penuh (Semua)</button>
+                <hr style="border-color:#555; margin-bottom:12px;">
+                <div class="time-range-group" style="margin-bottom:10px;">
+                    <div>
+                        <label>Tarikh Mula:</label>
+                        <input type="date" id="filterStartDate">
+                    </div>
+                    <div>
+                        <label>Tarikh Tamat:</label>
+                        <input type="date" id="filterEndDate">
+                    </div>
+                </div>
+                <button onclick="printFilteredReport()" style="width:100%; background:linear-gradient(45deg, #2ecc71, #27ae60); color:white; padding:10px;">📅 Cetak Laporan Mengikut Tarikh</button>
+            </div>
+
+            <div id="historyContent"></div>
+            <button onclick="closeHistoryModal()">Close</button>
+        </div>
     </div>
-</div>
 
-<label>Tujuan:</label>
-<textarea id="purpose" rows="2" required></textarea>
-<label>Laptop:</label>
-<select id="laptop" required>
-<option value="NONE">NONE</option>
-<option value="LAPTOP HP229">LAPTOP HP229</option>
-<option value="LAPTOP HP230">LAPTOP HP230</option>
-<option value="LAPTOP LENOVO 0307">LAPTOP LENOVO 0307</option>
-<option value="LAPTOP LENOVO 0308">LAPTOP LENOVO 0308</option>
-<option value="LAPTOP LENOVO 0309">LAPTOP LENOVO 0309</option>
-</select>
-<label>LCD:</label>
-<select id="lcd" required>
-<option value="NONE">NONE</option>
-<option value="LCD 128">LCD 128</option>
-<option value="LCD 129">LCD 129</option>
-<option value="LCD 130">LCD 130</option>
-<option value="LCD 836">LCD 836</option>
-<option value="LCD 837">LCD 837</option>
-<option value="LCD JPA 1">LCD JPA 1</option>
-<option value="LCD JPA 6">LCD JPA 6</option>
-<option value="LCD JPA 7">LCD JPA 7</option>
-<option value="LCD JPA 8">LCD JPA 8</option>
-</select>
-<label>Aksesori:</label>
-<div id="accessoryOptions">
-<label><input type="checkbox" value="HDMI"> HDMI <span id="stock_HDMI" class="stock-badge"></span></label>
-<label><input type="checkbox" value="MOUSE"> MOUSE <span id="stock_MOUSE" class="stock-badge"></span></label>
-<label><input type="checkbox" value="CHARGER LAPTOP"> CHARGER LAPTOP <span id="stock_CHARGER_LAPTOP" class="stock-badge"></span></label>
-<label><input type="checkbox" value="POWER PLUG LCD"> POWER PLUG LCD <span id="stock_POWER_PLUG_LCD" class="stock-badge"></span></label>
-<label><input type="checkbox" value="NONE"> NONE</label>
-</div>
-<button type="submit">Submit Peminjaman</button>
-<button type="button" onclick="showPage('homePage')">Kembali ke Home</button>
-</form>
-</div>
-<div class="section booking-list">
-<h2>Senarai Peminjaman Aktif</h2>
-<table id="bookingTable1">
-<thead><tr><th>Reference</th><th>Nama</th><th>Tarikh & Masa</th><th>Tujuan</th><th>Laptop</th><th>LCD</th><th>Aksesori</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</div>
+    <div class="container" id="homePage">
+        <div class="home-buttons">
+            <button onclick="showPage('bookingPage')">Menu Peminjaman</button>
+            <button onclick="showPage('returnPage')">Menu Pemulangan</button>
+        </div>
+    </div>
 
-<div class="container" id="returnPage" style="display:none;">
-<div class="section">
-<h2>Form Pemulangan</h2>
-<form id="returnForm">
-<label>Reference Code:</label>
-<input type="text" id="refCode" required>
-<label>Tarikh Pulang:</label>
-<input type="date" id="returnDate" required>
-<label>Status Barang:</label>
-<select id="status" required>
-<option value="complete">Lengkap</option>
-<option value="incomplete">Tidak Lengkap</option>
-</select>
-<label>Keterangan (jika tidak lengkap):</label>
-<textarea id="notes" rows="2" disabled></textarea>
-<button type="submit">Submit Pemulangan</button>
-<button type="button" onclick="showPage('homePage')">Kembali ke Home</button>
-</form>
-</div>
-<div class="section booking-list">
-<h2>Senarai Peminjaman Aktif</h2>
-<table id="bookingTable2">
-<thead><tr><th>Reference</th><th>Nama</th><th>Tarikh & Masa</th><th>Tujuan</th><th>Laptop</th><th>LCD</th><th>Aksesori</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</div>
+    <div class="container" id="bookingPage" style="display:none;">
+        <div class="section">
+            <h2>Form Peminjaman</h2>
+            <form id="bookingForm">
+                <label>Nama:</label>
+                <input type="text" id="name" required>
 
-<div class="container" id="adminPage" style="display:none;">
-<div class="section">
-<h2>Admin Panel</h2>
-<label>Check Reference Code:</label>
-<input type="text" id="adminRefCheck" placeholder="Masukkan Reference Code">
-<button onclick="checkReference()">Cari Reference</button>
-<div id="refDetails" style="margin-top:10px;color:#ffd700;"></div>
-<hr style="margin:20px 0;border-color:#ffd700">
-<button id="toggleAccessBtn" onclick="toggleAccess()">Tutup/Pembukaan Akses Peminjaman & Pemulangan</button>
-<p id="accessStatus" style="margin-top:10px;color:#ffd700;">Akses Sekarang: Dibuka</p>
-<button onclick="showHistory()">Lihat Jadual Status Pemulangan (60 Hari)</button>
-<hr style="margin:20px 0;border-color:#ff4500">
-<button onclick="clearAllData()" style="background: linear-gradient(45deg, #ff4500, #ff0000); color: white; width: 100%;">⚠️ Padam Semua Rekod Sistem</button>
-<button onclick="showPage('homePage')" style="margin-top: 10px;">Kembali ke Home</button>
-</div>
-</div>
+                <label>Tarikh Peminjaman:</label>
+                <input type="date" id="date" required>
 
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+                <div class="time-range-group">
+                    <div>
+                        <label>Masa Mula:</label>
+                        <select id="startTime" required></select>
+                    </div>
+                    <div>
+                        <label>Masa Tamat:</label>
+                        <select id="endTime" required></select>
+                    </div>
+                </div>
 
-<script>
-// INFO CONFIG PROJEK FIREBASE KORANG
-const firebaseConfig = {
-  apiKey: "AIzaSyDsVRGwt04SKCQ-RVI7ll3i6lCCzNZS8WU",
-  authDomain: "bookingwoi-8fcf2.firebaseapp.com",
-  projectId: "bookingwoi-8fcf2",
-  storageBucket: "bookingwoi-8fcf2.firebasestorage.app",
-  messagingSenderId: "1012040923968",
-  appId: "1:1012040923968:web:ecc6a2604a19904db698a5"
-};
+                <label>Tujuan:</label>
+                <textarea id="purpose" rows="2" required></textarea>
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const systemDocRef = db.collection("system_database").doc("asset_booking_data");
+                <label>Laptop:</label>
+                <select id="laptop" required>
+                    <option value="NONE">NONE</option>
+                    <option value="LAPTOP HP229">LAPTOP HP229</option>
+                    <option value="LAPTOP HP230">LAPTOP HP230</option>
+                    <option value="LAPTOP LENOVO 0307">LAPTOP LENOVO 0307</option>
+                    <option value="LAPTOP LENOVO 0308">LAPTOP LENOVO 0308</option>
+                    <option value="LAPTOP LENOVO 0309">LAPTOP LENOVO 0309</option>
+                </select>
 
-let bookings=[]; 
-let inboxAdmin=[]; 
-let history=[]; 
-let adminLoggedIn=false;
-let accessOpen=true;
+                <label>LCD:</label>
+                <select id="lcd" required>
+                    <option value="NONE">NONE</option>
+                    <option value="LCD 128">LCD 128</option>
+                    <option value="LCD 129">LCD 129</option>
+                    <option value="LCD 130">LCD 130</option>
+                    <option value="LCD 836">LCD 836</option>
+                    <option value="LCD 837">LCD 837</option>
+                    <option value="LCD JPA 1">LCD JPA 1</option>
+                    <option value="LCD JPA 6">LCD JPA 6</option>
+                    <option value="LCD JPA 7">LCD JPA 7</option>
+                    <option value="LCD JPA 8">LCD JPA 8</option>
+                </select>
 
-// PENETAPAN HAD STOK BARU MENGIKUT PERMINTAAN
-let accessoryStock = { 'HDMI': 5, 'MOUSE': 5, 'CHARGER LAPTOP': 5, 'POWER PLUG LCD': 9 };
-
-function populateTimeDropdowns() {
-    const startSelect = document.getElementById('startTime');
-    const endSelect = document.getElementById('endTime');
-    startSelect.innerHTML = '';
-    endSelect.innerHTML = '';
-
-    let times = [];
-    for (let hour = 8; hour < 24; hour++) {
-        for (let min of ['00', '30']) {
-            let displayHour = hour % 12 === 0 ? 12 : hour % 12;
-            let ampm = hour >= 12 ? 'PM' : 'AM';
-            times.push({
-                value: `${hour.toString().padStart(2, '0')}:${min}`,
-                label: `${displayHour}:${min} ${ampm}`
-            });
-        }
-    }
-    times.push({ value: "24:00", label: "12:00 AM" });
-
-    times.forEach(t => {
-        if(t.value !== "24:00") {
-            let optStart = document.createElement('option');
-            optStart.value = t.label;
-            optStart.innerText = t.label;
-            startSelect.appendChild(optStart);
-        }
-        if(t.value !== "08:00") {
-            let optEnd = document.createElement('option');
-            optEnd.value = t.label;
-            optEnd.innerText = t.label;
-            endSelect.appendChild(optEnd);
-        }
-    });
-}
-populateTimeDropdowns();
-
-function generateRef(){return 'REF'+Date.now()+'-'+Math.floor(Math.random()*10000);}
-function openLoginModal(){document.getElementById('loginModal').style.display='flex'}
-function closeLoginModal(){document.getElementById('loginModal').style.display='none'}
-function openInboxModal(){const c=document.getElementById('inboxContent');c.innerHTML=inboxAdmin.length===0?'<p>Tidak ada laporan.</p>':inboxAdmin.map(i=>`<p><b>${i.ref}</b> - ${i.name} (${i.date}) : ${i.notes}</p>`).join('');document.getElementById('adminInboxModal').style.display='flex'}
-function closeInboxModal(){document.getElementById('adminInboxModal').style.display='none'}
-function closeHistoryModal(){document.getElementById('adminHistoryModal').style.display='none'}
-
-function adminLogin(){
-    const u=document.getElementById('adminUsername').value.trim();
-    const p=document.getElementById('adminPassword').value.trim();
-    if(u==='Admin JPA'&&p==='adminjpapis01'){
-        adminLoggedIn=true;
-        closeLoginModal();
-        document.getElementById('loginBtn').style.display='none';
-        document.getElementById('inboxBtn').style.display='block';
-        document.getElementById('adminPageBtn').style.display='block';
-        alert('Login Berjaya!')
-    }else{
-        alert('Username atau Password salah!')
-    }
-}
-
-function toggleAccess(){
-    accessOpen=!accessOpen;
-    document.getElementById('accessStatus').innerText="Akses Sekarang: "+(accessOpen?"Dibuka":"Ditutup");
-    saveDataToFirebase();
-}
-
-function showPage(id){
-    ['homePage','bookingPage','returnPage','adminPage'].forEach(p=>document.getElementById(p).style.display='none');
-    updateTable();
-    document.getElementById(id).style.display='block';
-}
-
-function updateTable(){
-    ['bookingTable1','bookingTable2'].forEach(tid=>{
-        const tb=document.getElementById(tid).querySelector('tbody');tb.innerHTML='';
-        bookings.forEach(b=>{
-            const tr=document.createElement('tr');
-            const timeDisplay = (b.startTime && b.endTime) ? `<br><small>(${b.startTime} - ${b.endTime})</small>` : '';
-            tr.innerHTML=`<td>${b.ref}</td><td>${b.name}</td><td>${b.date}${timeDisplay}</td><td>${b.purpose}</td><td>${b.laptop}</td><td>${b.lcd}</td><td>${b.accessory.join(', ')}</td>`;
-            tb.appendChild(tr);
-        });
-    });
-    updateDropdowns();
-}
-
-function updateDropdowns(){
-    const laptopsBooked=bookings.filter(b=>b.laptop!=='NONE').map(b=>b.laptop);
-    const lcdBooked=bookings.filter(b=>b.lcd!=='NONE').map(b=>b.lcd);
-    
-    // Tetapkan baki stok asal berasaskan had stok maksimum baharu
-    accessoryStock = { 'HDMI': 5, 'MOUSE': 5, 'CHARGER LAPTOP': 5, 'POWER PLUG LCD': 9 };
-    
-    // Tolak baki sekiranya barang sedang aktif dipinjam
-    bookings.forEach(b=>{b.accessory.forEach(a=>{if(a!=='NONE' && accessoryStock[a] !== undefined) accessoryStock[a]--;}); });
-    
-    const laptopOptions=document.getElementById('laptop').options;
-    for(let i=0;i<laptopOptions.length;i++){ laptopOptions[i].disabled=laptopsBooked.includes(laptopOptions[i].value); }
-    const lcdOptions=document.getElementById('lcd').options;
-    for(let i=0;i<lcdOptions.length;i++){ lcdOptions[i].disabled=lcdBooked.includes(lcdOptions[i].value); }
-    
-    // Kemaskini element teks dan status baki pada UI borang
-    const accessoryCheckboxes=document.querySelectorAll('#accessoryOptions input[type="checkbox"]');
-    let selected = Array.from(accessoryCheckboxes).filter(c=>c.checked && c.value!=='NONE');
-    let noneCheckbox = Array.from(accessoryCheckboxes).find(c=>c.value==='NONE');
-    
-    accessoryCheckboxes.forEach(c=>{
-        if(c.value!=='NONE') {
-            c.disabled = accessoryStock[c.value]<=0 || noneCheckbox.checked;
-            
-            // Format ID element id penunjuk baki (Gantikan ruang kosong kepada symbol '_')
-            let elementId = "stock_" + c.value.replace(/ /g, "_");
-            let badge = document.getElementById(elementId);
-            if(badge) {
-                if(accessoryStock[c.value] <= 0) {
-                    badge.innerText = "(HABIS)";
-                    badge.className = "stock-empty";
-                } else {
-                    badge.innerText = `(Baki: ${accessoryStock[c.value]})`;
-                    badge.className = "stock-badge";
-                }
-            }
-        }
-    });
-    noneCheckbox.disabled = selected.length>0;
-}
-
-const accessoryCheckboxes = document.querySelectorAll('#accessoryOptions input[type="checkbox"]');
-accessoryCheckboxes.forEach(cb=>cb.addEventListener('change',function(){
-    let selected = Array.from(accessoryCheckboxes).filter(c=>c.checked && c.value!=='NONE');
-    let noneCheckbox = Array.from(accessoryCheckboxes).find(c=>c.value==='NONE');
-    if(selected.length>0){ noneCheckbox.disabled=true; }
-    else{ noneCheckbox.disabled=false; }
-    if(noneCheckbox.checked){ accessoryCheckboxes.forEach(c=>{if(c.value!=='NONE') c.disabled=true;}); }
-    else{ accessoryCheckboxes.forEach(c=>{if(c.value!=='NONE') c.disabled=false;}); }
-}));
-
-// REAL-TIME SNAPSHOT
-systemDocRef.onSnapshot((doc) => {
-    if (doc.exists) {
-        const data = doc.data();
-        bookings = data.bookings || [];
-        inboxAdmin = data.inboxAdmin || [];
-        history = data.history || [];
-        accessOpen = data.accessOpen !== undefined ? data.accessOpen : true;
-        
-        document.getElementById('accessStatus').innerText = "Akses Sekarang: " + (accessOpen ? "Dibuka" : "Ditutup");
-        updateTable();
-    }
-});
-
-function saveDataToFirebase(){
-    systemDocRef.set({
-        bookings: bookings,
-        inboxAdmin: inboxAdmin,
-        history: history,
-        accessOpen: accessOpen
-    }).catch(err => console.error("Gagal update data ke Firebase: ", err));
-}
-
-function clearAllData() {
-    const confirm1 = confirm("⚠️ AMARAN! Adakah awak pasti mahu memadam SEMUA rekod peminjaman, sejarah pemulangan dan laporan inbox di dalam sistem?");
-    if (confirm1) {
-        const confirm2 = confirm("PENGESAHAN KEDUA: Tindakan ini TIDAK BOLEH dikembalikan. Klik OK untuk padam semua.");
-        if (confirm2) {
-            bookings = [];
-            inboxAdmin = [];
-            history = [];
-            saveDataToFirebase();
-            alert("Semua rekod sistem telah berjaya dipadamkan sepenuhnya!");
-            showPage('homePage');
-        }
-    }
-}
-
-// PEMINJAMAN
-document.getElementById('bookingForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    if(!accessOpen){ alert('Akses Peminjaman ditutup!'); return; }
-    const name = document.getElementById('name').value.trim();
-    const date = document.getElementById('date').value;
-    const startTime = document.getElementById('startTime').value;
-    const endTime = document.getElementById('endTime').value;
-    const purpose = document.getElementById('purpose').value.trim();
-    const laptop = document.getElementById('laptop').value;
-    const lcd = document.getElementById('lcd').value;
-    
-    let accessory = Array.from(accessoryCheckboxes).filter(c=>c.checked).map(c=>c.value);
-    if([laptop,lcd].every(a=>'NONE'===a) && accessory.length===0){ alert('Sila pilih sekurang-kurangnya satu aset.'); return; }
-    
-    const ref = generateRef();
-    bookings.push({ref,name,date,startTime,endTime,purpose,laptop,lcd,accessory});
-    alert('Peminjaman berjaya! Reference Code: '+ref);
-    this.reset();
-    populateTimeDropdowns(); 
-    accessoryCheckboxes.forEach(c=>c.disabled=false);
-    updateTable();
-    saveDataToFirebase();
-});
-
-// PEMULANGAN
-document.getElementById('returnForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    if(!accessOpen){ alert('Akses Pemulangan ditutup!'); return; }
-    const ref = document.getElementById('refCode').value.trim();
-    const returnDate = document.getElementById('returnDate').value;
-    const status = document.getElementById('status').value;
-    const notes = document.getElementById('notes').value.trim();
-    const index = bookings.findIndex(b=>b.ref===ref);
-    if(index===-1){ alert('Reference code tidak ditemui!'); return; }
-    if(status==='incomplete' && notes===''){ alert('Sila isi keterangan jika barang TIDAK lengkap!'); return; }
-    let b = bookings[index];
-    history.push({ref:b.ref,name:b.name,date:b.date,startTime:b.startTime || '',endTime:b.endTime || '',purpose:b.purpose,laptop:b.laptop,lcd:b.lcd,accessory:b.accessory,status:status,notes:notes,timestamp:Date.now()});
-    if(status==='incomplete'){ inboxAdmin.push({ref:b.ref,name:b.name,date:b.date,notes:notes}); if(adminLoggedIn)alert('Barang tidak lengkap. Keterangan dihantar ke inbox admin.'); }
-    else{ if(adminLoggedIn)alert('Barang berjaya dikembalikan lengkap!'); }
-    bookings.splice(index,1);
-    this.reset();
-    updateTable();
-    saveDataToFirebase();
-});
-
-document.getElementById('status').addEventListener('change',function(){
-    document.getElementById('notes').disabled = this.value==='complete';
-});
-
-function checkReference(){
-    const ref=document.getElementById('adminRefCheck').value.trim();
-    let rec=bookings.find(b=>b.ref===ref);
-    let hist=history.find(h=>h.ref===ref && (Date.now()-h.timestamp<=60*24*60*60*1000));
-    if(rec){
-        const timeStr = (rec.startTime && rec.endTime) ? `<br><b>Masa:</b> ${rec.startTime} - ${rec.endTime}` : '';
-        document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${rec.ref}<br><b>Nama:</b> ${rec.name}<br><b>Tarikh:</b> ${rec.date}${timeStr}<br><b>Tujuan:</b> ${rec.purpose}<br><b>Laptop:</b> ${rec.laptop}<br><b>LCD:</b> ${rec.lcd}<br><b>Aksesori:</b> ${rec.accessory.join(', ') }<br><b>Status:</b> Sedang Dipinjam`;
-    }
-    else if(hist){
-        const timeStr = (hist.startTime && hist.endTime) ? `<br><b>Masa:</b> ${hist.startTime} - ${hist.endTime}` : '';
-        document.getElementById('refDetails').innerHTML=`<b>Reference:</b> ${hist.ref}<br><b>Nama:</b> ${hist.name}<br><b>Tarikh Peminjaman:</b> ${hist.date}${timeStr}<br><b>Tujuan:</b> ${hist.purpose}<br><b>Laptop:</b> ${hist.laptop}<br><b>LCD:</b> ${hist.lcd}<br><b>Aksesori:</b> ${hist.accessory.join(', ')}<br><b>Status:</b> ${hist.status}<br><b>Keterangan:</b> ${hist.notes}`;}
-    else{document.getElementById('refDetails').innerText="Reference tidak ditemui atau lebih 60 hari.";}
-}
-
-function showHistory(){
-    const recent = history.filter(h => Date.now() - h.timestamp <= 60 * 24 * 60 * 60 * 1000);
-    document.getElementById('historyContent').innerHTML = recent.length === 0 
-        ? '<p>Tidak ada rekod.</p>' 
-        : recent.map(h => `<div class="report-item"><b>${h.name}</b> (${h.ref}) <br> <span style="color: ${h.status==='complete'?'#00ff00':'#ff4500'}">Status: ${h.status.toUpperCase()}</span></div>`).join('');
-    document.getElementById('adminHistoryModal').style.display = 'flex';
-}
-
-function generatePrintTemplate(dataList, titleSubtitle) {
-    let tableRows = dataList.map((h, index) => {
-        return `
-            <tr>
-                <td>${index + 1}</td>
-                <td><b>${h.name}</b><br><small>${h.ref}</small></td>
-                <td>${h.date}<br><small>(${h.startTime} - ${h.endTime})</small></td>
-                <td>${h.purpose}</td>
-                <td>${h.laptop}</td>
-                <td>${h.lcd}</td>
-                <td>${h.accessory.join(', ')}</td>
-                <td class="${h.status}">${h.status === 'complete' ? 'LENGKAP' : 'TIDAK LENGKAP'}</td>
-                <td>${h.notes || '-'}</td>
-            </tr>
-        `;
-    }).join('');
-
-    return `
-        <html>
-        <head>
-            <title>Laporan Pemulangan Aset</title>
-            <style>
-                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; padding: 20px; line-height: 1.4; }
-                .header { text-align: center; margin-bottom: 30px; border-bottom: 3px double #333; padding-bottom: 10px; }
-                .header h1 { margin: 0; font-size: 24px; color: #111; text-transform: uppercase; }
-                .header p { margin: 5px 0 0 0; color: #666; font-size: 14px; }
-                .meta-info { margin-bottom: 15px; font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; }
-                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-                th, td { border: 1px solid #666; padding: 10px; text-align: center; }
-                th { background-color: #f2f2f2; font-weight: bold; text-transform: uppercase; }
-                tr:nth-child(even) { background-color: #fafafa; }
-                .complete { color: green; font-weight: bold; }
-                .incomplete { color: red; font-weight: bold; }
-                .footer { margin-top: 5px; text-align: right; font-size: 11px; color: #777; position: fixed; bottom: 20px; right: 20px; }
-                @media print { button { display: none; } body { padding: 0; } }
-                .print-btn { background-color: #008CBA; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 14px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
-            </style>
-        </head>
-        <body>
-            <button class="print-btn" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
-            <div class="header">
-                <h1>Laporan Rasmi Pemulangan Aset ICT</h1>
-                <p>${titleSubtitle}</p>
-            </div>
-            <div class="meta-info">
-                <span>Tarikh Laporan Dijana: ${new Date().toLocaleDateString('ms-MY')}</span>
-                <span>Sistem: Cloud Firestore Live Database</span>
-            </div>
-            <table>
+                <label>Aksesori:</label>
+                <div id="accessoryOptions">
+                    <label><input type="checkbox" value="HDMI"> HDMI <span id="stock_HDMI" class="stock-badge"></span></label>
+                    <label><input type="checkbox" value="MOUSE"> MOUSE <span id="stock_MOUSE" class="stock-badge"></span></label>
+                    <label><input type="checkbox" value="CHARGER LAPTOP"> CHARGER LAPTOP <span id="stock_CHARGER_LAPTOP" class="stock-badge"></span></label>
+                    <label><input type="checkbox" value="POWER PLUG LCD"> POWER PLUG LCD <span id="stock_POWER_PLUG_LCD" class="stock-badge"></span></label>
+                    <label><input type="checkbox" value="NONE"> NONE</label>
+                </div>
+                <button type="submit">Submit Peminjaman</button>
+                <button type="button" onclick="showPage('homePage')">Kembali ke Home</button>
+            </form>
+        </div>
+        <div class="section booking-list">
+            <h2>Senarai Peminjaman Aktif</h2>
+            <table id="bookingTable1">
                 <thead>
-                    <tr>
-                        <th>Bil</th>
-                        <th>Nama Peminjam & Ref Code</th>
-                        <th>Tarikh & Masa</th>
-                        <th>Tujuan</th>
-                        <th>Laptop</th>
-                        <th>LCD</th>
-                        <th>Aksesori</th>
-                        <th>Status Pemulangan</th>
-                        <th>Keterangan Tambahan</th>
-                    </tr>
+                    <tr><th>Reference</th><th>Nama</th><th>Tarikh & Masa</th><th>Tujuan</th><th>Laptop</th><th>LCD</th><th>Aksesori</th></tr>
                 </thead>
-                <tbody>
-                    ${tableRows}
-                </tbody>
+                <tbody></tbody>
             </table>
-            <div class="footer">Dicetak secara automatik daripada Asset Booking System</div>
-        </body>
-        </html>
-    `;
-}
+        </div>
+    </div>
 
-function printFullReport() {
-    const recent = history.filter(h => Date.now() - h.timestamp <= 60 * 24 * 60 * 60 * 1000);
-    if(recent.length === 0) { alert("Tiada rekod data pemulangan untuk dicetak!"); return; }
+    <div class="container" id="returnPage" style="display:none;">
+        <div class="section">
+            <h2>Form Pemulangan</h2>
+            <form id="returnForm">
+                <label>Reference Code:</label>
+                <input type="text" id="refCode" required>
+                <label>Tarikh Pulang:</label>
+                <input type="date" id="returnDate" required>
+                <label>Status Barang:</label>
+                <select id="status" required>
+                    <option value="complete">Lengkap</option>
+                    <option value="incomplete">Tidak Lengkap</option>
+                </select>
+                <label>Keterangan (jika tidak lengkap):</label>
+                <textarea id="notes" rows="2" disabled></textarea>
+                <button type="submit">Submit Pemulangan</button>
+                <button type="button" onclick="showPage('homePage')">Kembali ke Home</button>
+            </form>
+        </div>
+        <div class="section booking-list">
+            <h2>Senarai Peminjaman Aktif</h2>
+            <table id="bookingTable2">
+                <thead>
+                    <tr><th>Reference</th><th>Nama</th><th>Tarikh & Masa</th><th>Tujuan</th><th>Laptop</th><th>LCD</th><th>Aksesori</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 
-    const reportWindow = window.open('', '_blank');
-    reportWindow.document.write(generatePrintTemplate(recent, "Rekod Keseluruhan Sistem Peminjaman (Tempoh: 60 Hari Terkini)"));
-    reportWindow.document.close();
-}
+    <div class="container" id="adminPage" style="display:none;">
+        <div class="section">
+            <h2>Admin Panel</h2>
+            <label>Check Reference Code:</label>
+            <input type="text" id="adminRefCheck" placeholder="Masukkan Reference Code">
+            <button onclick="checkReference()">Cari Reference</button>
+            <div id="refDetails" style="margin-top:10px;color:#ffd700;"></div>
+            <hr style="margin:20px 0;border-color:#ffd700">
+            <button id="toggleAccessBtn" onclick="toggleAccess()">Tutup/Buka Akses</button>
+            <p id="accessStatus" style="margin-top:10px;color:#ffd700;">Akses Sekarang: Dibuka</p>
+            <button onclick="showHistory()">Lihat Jadual Status Pemulangan (60 Hari)</button>
+            <hr style="margin:20px 0;border-color:#ff4500">
+            <button onclick="clearAllData()" style="background: linear-gradient(45deg, #ff4500, #ff0000); color: white; width: 100%;">⚠️Padam Semua Rekod Sistem</button>
+            <button onclick="showPage('homePage')" style="margin-top: 10px;">Kembali ke Home</button>
+        </div>
+    </div>
 
-function printFilteredReport() {
-    const startInput = document.getElementById('filterStartDate').value;
-    const endInput = document.getElementById('filterEndDate').value;
-
-    if(!startInput || !endInput) {
-        alert("Sila pilih kedua-dua Tarikh Mula dan Tarikh Tamat terlebih dahulu!");
-        return;
-    }
-
-    const startDate = new Date(startInput);
-    startDate.setHours(0,0,0,0);
-    const endDate = new Date(endInput);
-    endDate.setHours(23,59,59,999);
-
-    if(startDate > endDate) {
-        alert("Tarikh Mula tidak boleh melebihi Tarikh Tamat!");
-        return;
-    }
-
-    const filtered = history.filter(h => {
-        const recordDate = new Date(h.date);
-        return recordDate >= startDate && recordDate <= endDate;
-    });
-
-    if(filtered.length === 0) {
-        alert(`Tiada rekod pemulangan ditemui dari tarikh ${new Date(startInput).toLocaleDateString('ms-MY')} hingga ${new Date(endInput).toLocaleDateString('ms-MY')}.`);
-        return;
-    }
-
-    const reportWindow = window.open('', '_blank');
-    const subtitle = `Rekod Tapis Mengikut Tarikh: Peminjaman Dari ${new Date(startInput).toLocaleDateString('ms-MY')} Hingga ${new Date(endInput).toLocaleDateString('ms-MY')}`;
-    reportWindow.document.write(generatePrintTemplate(filtered, subtitle));
-    reportWindow.document.close();
-}
-</script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
