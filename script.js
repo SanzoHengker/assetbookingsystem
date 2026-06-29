@@ -268,21 +268,25 @@ function showHistory() {
 }
 
 function generatePrintTemplate(dataList, titleSubtitle) {
-    let tableRows = dataList.map((h, index) => {
-        return `
-            <tr>
-                <td>${index + 1}</td>
-                <td><b>${h.name}</b><br><small>${h.ref}</small></td>
-                <td>${h.date}<br><small>(${h.startTime} - ${h.endTime})</small></td>
-                <td>${h.purpose}</td>
-                <td>${h.laptop}</td>
-                <td>${h.lcd}</td>
-                <td>${h.accessory.join(', ')}</td>
-                <td class="${h.status}">${h.status === 'complete' ? 'LENGKAP' : 'TIDAK LENGKAP'}</td>
-                <td>${h.notes || '-'}</td>
-            </tr>
-        `;
-    }).join('');
+let tableRows = dataList.map((h, index) => {
+    const accessories = Array.isArray(h.accessory)
+        ? h.accessory.join(', ')
+        : (h.accessory || '-');
+
+    return `
+        <tr>
+            <td>${index + 1}</td>
+            <td><b>${h.name || '-'}</b><br><small>${h.ref || '-'}</small></td>
+            <td>${h.date || '-'}<br><small>(${h.startTime || '-'} - ${h.endTime || '-'})</small></td>
+            <td>${h.purpose || '-'}</td>
+            <td>${h.laptop || '-'}</td>
+            <td>${h.lcd || '-'}</td>
+            <td>${accessories}</td>
+            <td class="${h.status || ''}">${h.status === 'complete' ? 'LENGKAP' : 'TIDAK LENGKAP'}</td>
+            <td>${h.notes || '-'}</td>
+        </tr>
+    `;
+}).join('');
 
     return `
         <html>
